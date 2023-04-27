@@ -86,12 +86,36 @@ recipe_list.forEach(recipe => {
         })
 })
 
+const recipes_schema = []
+
 app.get('/', (req, res) => {
     res.json('Welcome to Recipe Scraper API')
 })
 
 app.get('/recipes', (req, res) => {
     res.json(recipes)
+})
+
+app.get('/recipes/schema', (req, res) => {
+    recipes.forEach(recipe => {
+        if (recipes_schema.filter(schema => schema.id === recipe.id).length === 0) {
+            axios.get(recipe.url)
+                .then(response => {
+                    const html = response.data
+                    const $ = cheerio.load(html)
+                    $('script[type="application/ld+json"]', html).each(function () {
+                        if ($(this).text().trim().includes("Recipe")) {
+                            recipes_schema.push({
+                                id: recipe.id,
+                                schema: JSON.parse($(this).text().trim())
+                            })
+                        }
+                    })
+                })
+                .catch(err => console.log(err))
+        }
+    })
+    res.json(recipes_schema)
 })
 
 app.get('/recipes/:recipeSource', (req, res) => {
@@ -106,11 +130,17 @@ app.get('/recipes/:recipeSource', (req, res) => {
         axios.get(specificRecipes.url)
             .then(response => {
                 const html = response.data
-                const htm = response.data
                 const $ = cheerio.load(html)
                 $('script[type="application/ld+json"]', html).each(function () {
                     if ($(this).text().trim().includes("Recipe")) {
-                        res.json(JSON.parse($(this).text().trim()))
+                        const response = JSON.parse($(this).text().trim())
+                        let schema
+                        if (response["@graph"] === undefined) {
+                            schema = response
+                        } else {
+                            schema = response["@graph"].filter(type => type["@type"] === 'Recipe')[0]
+                        }
+                        res.json(schema)
                     }
                 })
             })
