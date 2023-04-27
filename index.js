@@ -71,7 +71,7 @@ recipe_list.forEach(recipe => {
                 })
             })
             $('.elementor-post__title a', html).each(function () {
-                const title = $(this).text()
+                const title = $(this).text().trim()
                 const url = $(this).attr('href')
 
                 recipes.push({
@@ -93,18 +93,16 @@ app.get('/recipes', (req, res) => {
 })
 
 app.get('/recipes/:recipeSource', (req, res) => {
-    const recipeSource = req.params.recipeSource
-
-    const specificRecipes = recipes.filter(recipe => recipe.source === recipeSource)
+    let recipeSource = parseInt(req.params.recipeSource)
+    let specificRecipes
+    if (isNaN(recipeSource)) {
+        recipeSource = req.params.recipeSource
+        specificRecipes = recipes.filter(recipe => recipe.source === recipeSource)
+    } else {
+        specificRecipes = recipes.filter(recipe => recipe.id === recipeSource)[0]
+    }
 
     res.json(specificRecipes)
-})
-
-app.get('/recipe/:recipeId', (req, res) => {
-    const recipeId = parseInt(req.params.recipeId)
-    const specificRecipe = recipes.filter(recipe => recipe.id === recipeId)[0]
-
-    res.json(specificRecipe)
 })
 
 app.listen(PORT, () => console.log(`server running on PORT ${PORT}`))
