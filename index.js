@@ -62,7 +62,7 @@ recipe_list.forEach(recipe => {
             $('.gz-card.gz-card-vertical a', html).each(function () {
                 const title = $(this).attr('title')
                 const url = $(this).attr('href')
-                if (!url.startsWith("/")) {
+                if (!url.startsWith("/") && !url.includes("funtip")) {
                     recipes.push({
                         id: i++,
                         title: title,
@@ -100,11 +100,23 @@ app.get('/recipes/:recipeSource', (req, res) => {
     if (isNaN(recipeSource)) {
         recipeSource = req.params.recipeSource
         specificRecipes = recipes.filter(recipe => recipe.source === recipeSource)
+        res.json(specificRecipes)
     } else {
         specificRecipes = recipes.filter(recipe => recipe.id === recipeSource)[0]
+        axios.get(specificRecipes.url)
+            .then(response => {
+                const html = response.data
+                const htm = response.data
+                const $ = cheerio.load(html)
+                $('script[type="application/ld+json"]', html).each(function () {
+                    if ($(this).text().trim().includes("Recipe")) {
+                        res.json(JSON.parse($(this).text().trim()))
+                    }
+                })
+            })
+            .catch(err => console.log(err))
     }
 
-    res.json(specificRecipes)
 })
 
 app.listen(PORT, () => console.log(`server running on PORT ${PORT}`))
