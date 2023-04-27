@@ -62,24 +62,26 @@ recipe_list.forEach(recipe => {
             $('.gz-card.gz-card-vertical a', html).each(function () {
                 const title = $(this).attr('title')
                 const url = $(this).attr('href')
-
-                recipes.push({
-                    id: i++,
-                    title: title,
-                    url: url,
-                    source: recipe.name
-                })
+                if (!url.startsWith("/")) {
+                    recipes.push({
+                        id: i++,
+                        title: title,
+                        url: url,
+                        source: recipe.name
+                    })
+                }
             })
             $('.elementor-post__title a', html).each(function () {
                 const title = $(this).text().trim()
                 const url = $(this).attr('href')
-
-                recipes.push({
-                    id: i++,
-                    title: title,
-                    url: url,
-                    source: recipe.name
-                })
+                if (!url.startsWith("/")) {
+                    recipes.push({
+                        id: i++,
+                        title: title,
+                        url: url,
+                        source: recipe.name
+                    })
+                }
             })
         })
 })
