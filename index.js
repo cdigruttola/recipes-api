@@ -54,6 +54,8 @@ const recipe_list = [
 const recipes = []
 let i = 1;
 
+app.set('json spaces', 2);
+
 recipe_list.forEach(recipe => {
     axios.get(recipe.address)
         .then(response => {
