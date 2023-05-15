@@ -48,6 +48,10 @@ const recipe_list = [
     {
         name: 'tagliatelle',
         address: 'https://www.giallozafferano.it/ricerca-ricette/tagliatelle'
+    },
+    {
+        name: 'Gnocchetti sardi',
+        address: 'https://ricette.giallozafferano.it/ricette-con-gli-Gnocchetti-Sardi/'
     }
 ]
 
@@ -62,6 +66,18 @@ recipe_list.forEach(recipe => {
             const html = response.data
             const $ = cheerio.load(html)
             $('.gz-card.gz-card-vertical a', html).each(function () {
+                const title = $(this).attr('title')
+                const url = $(this).attr('href')
+                if (!url.startsWith("/") && !url.includes("funtip")) {
+                    recipes.push({
+                        id: i++,
+                        title: title,
+                        url: url,
+                        source: recipe.name
+                    })
+                }
+            })
+            $('.gz-card.gz-card-horizontal .gz-card-image a', html).each(function () {
                 const title = $(this).attr('title')
                 const url = $(this).attr('href')
                 if (!url.startsWith("/") && !url.includes("funtip")) {
